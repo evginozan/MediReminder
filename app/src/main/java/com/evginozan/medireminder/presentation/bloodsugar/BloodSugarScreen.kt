@@ -27,7 +27,6 @@ fun BloodSugarScreen(
     var showAddDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Validasyon hatası için snackbar gösterimi
     LaunchedEffect(state.validationError) {
         state.validationError?.let {
             snackbarHostState.showSnackbar(it)

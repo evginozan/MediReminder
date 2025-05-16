@@ -14,9 +14,11 @@ import androidx.core.app.NotificationManagerCompat
 import com.evginozan.medireminder.MainActivity
 import com.evginozan.medireminder.R
 
-class NotificationHelper(private val context: Context) {
+class NotificationHelper(private val context: Context)
+{
 
-    companion object {
+    companion object
+    {
         const val CHANNEL_ID_MEDICATION_REMINDER = "medication_reminder_channel"
         const val CHANNEL_ID_LOW_STOCK = "low_stock_channel"
 
@@ -24,13 +26,15 @@ class NotificationHelper(private val context: Context) {
         const val NOTIFICATION_ID_LOW_STOCK = 2001
     }
 
-    init {
+    init
+    {
         createNotificationChannels()
     }
 
-    private fun createNotificationChannels() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // İlaç Hatırlatma Kanalı
+    private fun createNotificationChannels()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
             val reminderChannel = NotificationChannel(
                 CHANNEL_ID_MEDICATION_REMINDER,
                 "İlaç Hatırlatıcı",
@@ -40,7 +44,6 @@ class NotificationHelper(private val context: Context) {
                 enableVibration(true)
             }
 
-            // Düşük Stok Kanalı
             val lowStockChannel = NotificationChannel(
                 CHANNEL_ID_LOW_STOCK,
                 "Düşük Stok Uyarısı",
@@ -49,14 +52,15 @@ class NotificationHelper(private val context: Context) {
                 description = "İlaç stoğu azaldığında bildirim verir"
             }
 
-            // Kanalları sisteme kaydet
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(reminderChannel)
             notificationManager.createNotificationChannel(lowStockChannel)
         }
     }
 
-    fun showMedicationReminder(medicationName: String, dosageInfo: String) {
+    fun showMedicationReminder(medicationName: String, dosageInfo: String)
+    {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
@@ -70,8 +74,10 @@ class NotificationHelper(private val context: Context) {
             .setSmallIcon(R.drawable.ic_medication)
             .setContentTitle("İlaç Hatırlatıcı")
             .setContentText("$medicationName alma zamanı geldi")
-            .setStyle(NotificationCompat.BigTextStyle()
-                .bigText("$medicationName alma zamanı geldi. $dosageInfo"))
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText("$medicationName alma zamanı geldi. $dosageInfo")
+            )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
@@ -80,7 +86,8 @@ class NotificationHelper(private val context: Context) {
         notifyWithPermissionCheck(NOTIFICATION_ID_MEDICATION, builder.build())
     }
 
-    fun showLowStockAlert(medicationName: String, remainingCount: Int) {
+    fun showLowStockAlert(medicationName: String, remainingCount: Int)
+    {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
@@ -101,32 +108,26 @@ class NotificationHelper(private val context: Context) {
         notifyWithPermissionCheck(NOTIFICATION_ID_LOW_STOCK, builder.build())
     }
 
-    /**
-     * İzin kontrolü yaparak bildirimi gönderen güvenli metot
-     */
-    private fun notifyWithPermissionCheck(notificationId: Int, notification: android.app.Notification) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+    private fun notifyWithPermissionCheck(
+        notificationId: Int,
+        notification: android.app.Notification
+    )
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        {
             if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED
-            ) {
+            )
+            {
                 NotificationManagerCompat.from(context).notify(notificationId, notification)
-            } else {
-                logNotificationPermissionMissing()
             }
-        } else {
+        } else
+        {
             NotificationManagerCompat.from(context).notify(notificationId, notification)
         }
     }
 
-    /**
-     * Bildirim izni olmadığında log çıktısı verme (geliştirme amaçlı)
-     */
-    private fun logNotificationPermissionMissing() {
-        android.util.Log.w(
-            "NotificationHelper",
-            "Notification permission is not granted. Notifications won't be shown."
-        )
-    }
 }
